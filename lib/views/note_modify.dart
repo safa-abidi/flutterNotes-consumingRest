@@ -1,9 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:notes_app/models/note.dart';
+import 'package:notes_app/services/notes_service.dart';
 
-class NoteModify extends StatelessWidget {
+class NoteModify extends StatefulWidget {
   final String? noteID;
-  bool get isEditing => noteID != null;
   const NoteModify({Key? key, this.noteID}) : super(key: key);
+
+  @override
+  State<NoteModify> createState() => _NoteModifyState();
+}
+
+class _NoteModifyState extends State<NoteModify> {
+  bool get isEditing => widget.noteID != null;
+
+  NotesService get notesService => GetIt.I<NotesService>();
+
+  String? errorMessage;
+  late Note note;
+
+  bool isLoading = false;
+
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentContoller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      isLoading = true;
+    });
+    notesService.getNote(widget.noteID!).then((response) {
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (response.error != null) {
+        errorMessage = response.errorMessage ?? 'An error occured';
+      }
+      note = response.data!;
+      _titleController.text = note.noteTitle;
+      _contentContoller.text = note.noteContent;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +53,10 @@ class NoteModify extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
+        child: isLoading ? Center(child: CircularProgressIndicator()) : Column(
           children: [
-            const TextField(
+            TextField(
+              controller: _titleController,
               decoration: InputDecoration(
                 hintText: 'Note Title',
               ),
@@ -23,7 +64,8 @@ class NoteModify extends StatelessWidget {
             const SizedBox(
               height: 8.0,
             ),
-            const TextField(
+            TextField(
+              controller: _contentContoller,
               decoration: InputDecoration(
                 hintText: 'Note content',
               ),
