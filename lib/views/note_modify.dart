@@ -100,7 +100,7 @@ class _NoteModifyState extends State<NoteModify> {
                       setState(() {
                         isLoading = false;
                       });
-                      
+
                       final title = 'Done';
                       final text = result.error != null ? (result.errorMessage ?? 'An error occured') : 'Your note was created';
 
@@ -117,7 +117,12 @@ class _NoteModifyState extends State<NoteModify> {
                               child: Text('ok'),
                               ),
                           ],
-                        ));
+                        )
+                        ).then((data) {
+                          if(result.data!){
+                            Navigator.of(context).pop();
+                          }
+                        });
                   }
                 },
                 child: const Text(

@@ -41,8 +41,6 @@ class _NotesListState extends State<NotesList> {
     });
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,65 +50,65 @@ class _NotesListState extends State<NotesList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => NoteModify()));
+              .push(MaterialPageRoute(builder: (_) => NoteModify()))
+              .then((_) {
+            _fetchNotes();
+          });
         },
         child: const Icon(Icons.add),
       ),
       body: Builder(
         builder: (_) {
-          if(_isLoading){
+          if (_isLoading) {
             return Center(child: CircularProgressIndicator());
           }
 
-          if(_apiResponse.error != null){
+          if (_apiResponse.error != null) {
             return Center(
               child: Text(_apiResponse.errorMessage ?? ''),
             );
-          }
-          
-          else{
-          return ListView.separated(
-              itemBuilder: (_, index) {
-                return Dismissible(
-                  key: ValueKey(_apiResponse.data![index].noteID),
-                  direction: DismissDirection.startToEnd,
-                  onDismissed: (direction) {},
-                  confirmDismiss: (direction) async {
-                    final result = await showDialog(
-                        context: context, builder: (_) => NoteDelete());
-                    return result;
-                  },
-                  background: Container(
-                    color: Colors.red,
-                    padding: EdgeInsets.only(left: 16),
-                    child: Align(
-                      child: Icon(Icons.delete, color: Colors.white),
-                      alignment: Alignment.centerLeft,
-                    ),
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      _apiResponse.data![index].noteTitle,
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
-                    subtitle: Text(
-                      'Last edited on ${formatDateTime(_apiResponse.data![index].latestEditDateTime ?? _apiResponse.data![index].createDateTime)}',
-                    ),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => NoteModify(
-                              noteID: _apiResponse.data![index].noteID)));
+          } else {
+            return ListView.separated(
+                itemBuilder: (_, index) {
+                  return Dismissible(
+                    key: ValueKey(_apiResponse.data![index].noteID),
+                    direction: DismissDirection.startToEnd,
+                    onDismissed: (direction) {},
+                    confirmDismiss: (direction) async {
+                      final result = await showDialog(
+                          context: context, builder: (_) => NoteDelete());
+                      return result;
                     },
-                    
-                  ),
-                );
-              },
-              separatorBuilder: (_, __) => const Divider(
-                    height: 1,
-                    color: Colors.green,
-                  ),
-              itemCount: _apiResponse.data!.length);
-              }
+                    background: Container(
+                      color: Colors.red,
+                      padding: EdgeInsets.only(left: 16),
+                      child: Align(
+                        child: Icon(Icons.delete, color: Colors.white),
+                        alignment: Alignment.centerLeft,
+                      ),
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        _apiResponse.data![index].noteTitle,
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                      subtitle: Text(
+                        'Last edited on ${formatDateTime(_apiResponse.data![index].latestEditDateTime ?? _apiResponse.data![index].createDateTime)}',
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => NoteModify(
+                                noteID: _apiResponse.data![index].noteID)));
+                      },
+                    ),
+                  );
+                },
+                separatorBuilder: (_, __) => const Divider(
+                      height: 1,
+                      color: Colors.green,
+                    ),
+                itemCount: _apiResponse.data!.length);
+          }
         },
       ),
     );
