@@ -41,6 +41,8 @@ class _NotesListState extends State<NotesList> {
     });
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,6 +101,7 @@ class _NotesListState extends State<NotesList> {
                           builder: (_) => NoteModify(
                               noteID: _apiResponse.data![index].noteID)));
                     },
+                    
                   ),
                 );
               },

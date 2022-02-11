@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:notes_app/models/note.dart';
+import 'package:notes_app/models/note_insert.dart';
 import 'package:notes_app/services/notes_service.dart';
 
 class NoteModify extends StatefulWidget {
@@ -27,10 +28,15 @@ class _NoteModifyState extends State<NoteModify> {
   @override
   void initState() {
     super.initState();
-    setState(() {
+    if(isEditing){
+      setState(() {
       isLoading = true;
     });
-    notesService.getNote(widget.noteID!).then((response) {
+    }
+    
+
+    if(isEditing){
+      notesService.getNote(widget.noteID!).then((response) {
 
       setState(() {
         isLoading = false;
@@ -44,6 +50,8 @@ class _NoteModifyState extends State<NoteModify> {
       _contentContoller.text = note.noteContent;
     });
   }
+    }
+    
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +85,40 @@ class _NoteModifyState extends State<NoteModify> {
               width: double.infinity,
               height: 35,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
+                onPressed: () async {
+                  if(isEditing){
+                    //update note
+                  }else{
+                    setState(() {
+                      isLoading = true;
+                    });
+                    final note = NoteInsert(
+                      _titleController.text, _contentContoller.text
+                      );
+                      final result = await notesService.createNote(note);
+
+                      setState(() {
+                        isLoading = false;
+                      });
+                      
+                      final title = 'Done';
+                      final text = result.error != null ? (result.errorMessage ?? 'An error occured') : 'Your note was created';
+
+                      showDialog(
+                        context: context, 
+                        builder: (_) => AlertDialog(
+                          title: Text(title),
+                          content: Text(text),
+                          actions: [
+                            TextButton(
+                              onPressed: (){
+                                Navigator.of(context).pop();
+                              }, 
+                              child: Text('ok'),
+                              ),
+                          ],
+                        ));
+                  }
                 },
                 child: const Text(
                   'Submit',
