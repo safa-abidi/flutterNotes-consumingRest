@@ -54,4 +54,14 @@ Future<APIResponse<bool>> createNote(NoteInsert item) {
     .catchError((_) => APIResponse<bool>(error: true, errorMessage: 'An error occured'));
   }
 
+  Future<APIResponse<bool>> updateNote(String noteId, NoteInsert item) {
+    return http.put(Uri.parse('$API/notes/$noteId'), headers: headers, body: json.encode(item.toJson())).then((data) {
+      if (data.statusCode == 204) {
+        return APIResponse<bool>(data: true);
+      }
+      return APIResponse<bool>(error: true, errorMessage: 'An error occured');
+    })
+    .catchError((_) => APIResponse<bool>(error: true, errorMessage: 'An error occured'));
+  }
+
 }
